@@ -34,76 +34,109 @@ def show_logo():
     st.markdown("""
         <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
             <svg width="100" height="100" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="url(#grad1)" stroke="#ffcc00" stroke-width="3"/>
-                <defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff007f"/><stop offset="100%" stop-color="#00ffcc"/></linearGradient></defs>
-                <text x="50" y="65" font-size="40" text-anchor="middle" fill="white">📘</text>
+                <circle cx="50" cy="50" r="45" fill="url(#gradLogo)" stroke="#ffcc00" stroke-width="3"/>
+                <defs><linearGradient id="gradLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff007f"/>
+                    <stop offset="50%" stop-color="#ffcc00"/>
+                    <stop offset="100%" stop-color="#00ffcc"/>
+                </linearGradient></defs>
+                <text x="50" y="65" font-size="40" text-anchor="middle" fill="white" font-weight="bold">📘</text>
             </svg>
         </div>
     """, unsafe_allow_html=True)
 
-# ----- 3. Audio Engine (The Part That Was Missing) -----
+# ----- 3. Audio Logic (pt-BR Voice) -----
 async def save_speech(text, file_path):
-    # Using the Brazilian Portuguese voice Antonio
     communicate = edge_tts.Communicate(text, "pt-BR-AntonioNeural")
     await communicate.save(file_path)
 
-def reproducir_audio(texto, key):
+def reproduzir_audio(texto, key):
     if not EDGE_TTS_AVAILABLE:
-        st.warning("⚠️ Áudio desabilitado. Verifique o seu requirements.txt.")
+        st.info("🔇 Áudio desabilitado no servidor.")
         return
-    
     if st.button(f"🔊 Ouvir", key=key):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
             try:
                 asyncio.run(save_speech(texto, tmp.name))
                 with open(tmp.name, "rb") as f:
-                    data = base64.b64encode(f.read()).decode()
-                    st.markdown(f'<audio src="data:audio/mp3;base64,{data}" controls autoplay style="width: 100%;"></audio>', unsafe_allow_html=True)
+                    audio_bytes = f.read()
+                    b64 = base64.b64encode(audio_bytes).decode()
+                    st.markdown(f'<audio controls src="data:audio/mp3;base64,{b64}" autoplay style="width: 100%;"></audio>', unsafe_allow_html=True)
             finally:
                 if os.path.exists(tmp.name):
                     os.unlink(tmp.name)
 
-# ----- 4. App Logic & Auth -----
-if "auth" not in st.session_state: st.session_state.auth = False
+# ----- 4. Content Generators -----
+temas = ["Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "Perguntar direções", "Falar da família", "No consultório médico", "Entrevista de emprego", "Planejar uma viagem", "Clima e estações", "Comprar roupas", "No banco", "Usar transporte público", "Alugar um apartamento", "Comemorar um aniversário", "Ir ao cinema", "Na academia", "Fazer uma ligação", "Escrever um e-mail", "Falar de hobbies"]
 
-if not st.session_state.auth:
+def get_lesson_data(n):
+    tema = temas[n-1]
+    return {
+        "conversas": [
+            f"A: Olá! Como você está?\nB: Estou muito bem, obrigado! Estou estudando {tema}.",
+            f"A: Com licença, você pode me ajudar com {tema}?\nB: Claro! É muito simples.",
+            f"A: Eu amo aprender português.\nB: Eu também! Praticar {tema} é ótimo."
+        ],
+        "vocabulario": ["Olá", "Obrigado", "Por favor", "Sim", "Não", "Bom dia", "Boa tarde", "Boa noite", "Tchau", "Até logo"],
+        "gramatica": [
+            "1. 'Ser' é permanente, 'Estar' é temporário.",
+            "2. Gênero: a maioria das palavras em 'o' é masculina, em 'a' é feminina.",
+            "3. Use 'há' para existência (there is/are).",
+            "4. Plurais geralmente terminam em 's'."
+        ]
+    }
+
+# ----- 5. Authentication -----
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
     set_colorful_style()
+    st.title("🔐 Acesso Necessário")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         show_logo()
         st.markdown("<h2 style='text-align: center;'>Let's Learn Portuguese</h2>", unsafe_allow_html=True)
-        pwd = st.text_input("Senha", type="password")
+        pwd = st.text_input("Digite a senha", type="password")
         if st.button("Entrar"):
-            if pwd == "20082010": 
-                st.session_state.auth = True
+            if pwd == "20082010":
+                st.session_state.authenticated = True
                 st.rerun()
+            else:
+                st.error("Senha incorreta.")
     st.stop()
 
-# ----- 5. Main Content -----
+# ----- 6. Main UI -----
 set_colorful_style()
-st.markdown('<div class="main-header"><h1>📘 Let\'s Learn Portuguese with Gesner</h1><p>Lição 1 - 20</p></div>', unsafe_allow_html=True)
-
-temas = ["Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "Perguntar direções", "Falar da família", "No consultório médico", "Entrevista de emprego", "Planejar uma viagem", "Clima e estações", "Comprar roupas", "No banco", "Usar transporte público", "Alugar um apartamento", "Comemorar um aniversário", "Ir ao cinema", "Na academia", "Fazer uma ligação", "Escrever um e-mail", "Falar de hobbies"]
+st.markdown("""<div class="main-header"><h1>📘 Let's Learn Portuguese with Gesner</h1><p>Livro 1 – 20 lições interativas</p></div>""", unsafe_allow_html=True)
 
 with st.sidebar:
     show_logo()
-    lesson = st.selectbox("Escolha a Lição", range(1, 21))
-    st.write(f"**Desenvolvedor:** Gesner Deslandes")
+    lesson_number = st.selectbox("Selecione a lição", list(range(1, 21)))
+    st.progress(lesson_number / 20)
+    st.markdown("---")
+    st.write("**Desenvolvedor:** Gesner Deslandes")
+    if st.button("🚪 Sair", use_container_width=True):
+        st.session_state.authenticated = False
+        st.rerun()
 
-tema = temas[lesson-1]
-st.markdown(f"## Lição {lesson}: {tema}")
+data = get_lesson_data(lesson_number)
+st.markdown(f"## Lição {lesson_number}: {temas[lesson_number-1]}")
+tabs = st.tabs(["💬 Conversas", "📚 Vocabulário", "📖 Gramática"])
 
-tab1, tab2 = st.tabs(["💬 Conversa", "📚 Vocabulário"])
+with tabs[0]:
+    for i, conv in enumerate(data["conversas"]):
+        st.text(conv)
+        reproducir_audio(conv, f"conv_{lesson_number}_{i}")
+        st.markdown("---")
 
-with tab1:
-    txt = f"A: Olá! Como você está?\nB: Estou muito bem, obrigado! Estou estudando {tema}."
-    st.text(txt)
-    reproducir_audio(txt, f"conv_{lesson}")
+with tabs[1]:
+    cols = st.columns(2)
+    for idx, item in enumerate(data["vocabulario"]):
+        with cols[idx % 2]:
+            st.write(f"**{item}**")
+            reproducir_audio(item, f"voc_{lesson_number}_{idx}")
 
-with tab2:
-    palavras = ["Olá", "Obrigado", "Por favor", "Sim", "Não"]
-    cols = st.columns(len(palavras))
-    for idx, p in enumerate(palavras):
-        with cols[idx]:
-            st.write(f"**{p}**")
-            reproducir_audio(p, f"voc_{lesson}_{idx}")
+with tabs[2]:
+    for regra in data["gramatica"]:
+        st.write(f"- {regra}")
