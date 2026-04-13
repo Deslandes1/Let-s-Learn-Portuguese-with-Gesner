@@ -28,11 +28,12 @@ def apply_custom_style():
         .main-header h1 { color: white; text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
         .main-header p { color: #fff5cc; font-size: 1.2rem; margin: 0; }
         
-        /* Sidebar Text Colors (Forcing White) */
+        /* Sidebar Text Colors - Explicitly White for your branding */
         [data-testid="stSidebar"] .stMarkdown p, 
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] .stSelectbox p { 
+        [data-testid="stSidebar"] .stSelectbox p,
+        [data-testid="stSidebar"] .stMarkdown span { 
             color: white !important; 
             font-weight: 500;
         }
@@ -60,9 +61,9 @@ def show_logo():
         </div>
     """, unsafe_allow_html=True)
 
-# ----- 3. Functional Logic -----
+# ----- 3. Audio & Data Functions -----
 async def save_speech(text, file_path):
-    # As requested: Spanish AI Voice
+    # Using Spanish AI voice per request
     communicate = edge_tts.Communicate(text, "es-ES-AlvaroNeural")
     await communicate.save(file_path)
 
@@ -81,7 +82,7 @@ def reproducir_audio(texto, key):
                 if os.path.exists(tmp.name): os.unlink(tmp.name)
 
 temas = [
-    "Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "Perguntar direções",
+    "Apresentar-se", "Rutina diária", "No supermercado", "Pedir comida", "Perguntar direções",
     "Falar da família", "No consultório médico", "Entrevista de emprego", "Planejar uma viagem", "Clima e estações",
     "Comprar roupas", "No banco", "Usar transporte público", "Alugar um apartamento", "Comemorar um aniversário",
     "Ir ao cinema", "Na academia", "Fazer uma ligação", "Escrever um e-mail", "Falar de hobbies"
@@ -95,25 +96,12 @@ def get_lesson_content(n):
             f"A: Prazer em conhecê-lo.\nB: O prazer é todo meu!",
             f"A: De onde você é?\nB: Eu sou do Haiti."
         ],
-        "vocabulario": [
-            "Olá", "Oi", "Bom dia", "Boa tarde", "Boa noite", "Por favor", "Obrigado", "De nada", "Desculpe", "Com licença",
-            "Sim", "Não", "Eu", "Você", "Nome", "Prazer", "Tchau", "Até logo", "Bem", "Mal"
-        ],
-        "gramatica": [
-            "1. Verbo 'Ser' para identidade.", "2. Verbo 'Estar' para estados.", "3. Pronomes pessoais: Eu, Você.", 
-            "4. Gênero: O (Masc) / A (Fem).", "5. Plural com 's'.", "6. Artigos definidos.", "7. Artigos indefinidos.", 
-            "8. Saudação formal vs informal.", "9. Interrogação com tom de voz.", "10. Uso do 'você' no Brasil."
-        ],
-        "pronuncia": [
-            "Muito prazer em conhecê-lo.",
-            "Como vai você hoje?",
-            "Eu falo um pouco de português.",
-            "Qual é o seu nome?",
-            "Até amanhã cedo."
-        ]
+        "vocabulario": ["Olá", "Oi", "Bom dia", "Boa tarde", "Boa noite", "Obrigado", "Sim", "Não", "Nome", "Prazer", "Tchau", "Até logo", "Amigo", "Escola", "Casa", "Água", "Livro", "Família", "Bem", "Mal"],
+        "gramatica": [f"1. Verbo 'Ser' em {tema}.", "2. Pronomes pessoais.", "3. Gênero das palavras.", "4. Artigos.", "5. Plural.", "6. Interrogações.", "7. Negações.", "8. Saudação formal.", "9. Verbos terminados em -ar.", "10. Uso de 'você'."],
+        "pronuncia": ["Como vai você hoje?", "Qual é o seu nome?", "Eu sou professor.", "Muito prazer em conhecê-lo.", "Até amanhã."]
     }
 
-# ----- 4. Authentication -----
+# ----- 4. Authentication (Login Page) -----
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
@@ -122,12 +110,15 @@ if not st.session_state.authenticated:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         show_logo()
-        st.markdown("<h2 style='text-align: center;'>Acesso ao Curso</h2>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center;'>🔐 Login Required</h1>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>Let's Learn Portuguese with Gesner</h2>", unsafe_allow_html=True)
         pwd = st.text_input("Senha", type="password")
         if st.button("Entrar"):
             if pwd == "20082010":
                 st.session_state.authenticated = True
                 st.rerun()
+            else:
+                st.error("Senha incorreta.")
     st.stop()
 
 # ----- 5. Main UI & Sidebar -----
@@ -144,8 +135,8 @@ with st.sidebar:
     st.markdown("📧 **Email:** deslandes78@gmail.com")
     st.markdown("🌐 **GlobalInternet.py**")
     st.markdown("---")
-    st.markdown("💰 **Preço:** $299 USD")
-    if st.button("🚪 Sair"):
+    st.markdown("### 💰 Preço: $299 USD")
+    if st.button("🚪 Sair", use_container_width=True):
         st.session_state.authenticated = False
         st.rerun()
 
@@ -180,7 +171,6 @@ with tabs[3]:
 
 with tabs[4]:
     st.markdown("### Teste seu conhecimento")
-    q = st.radio("Como se diz 'Thank you' em português?", ["Obrigado", "Olá", "Tchau"])
+    q = st.radio("Qual é a resposta correta?", ["Obrigado", "Olá", "Tchau"])
     if st.button("Verificar"):
-        if q == "Obrigado": st.success("Correto!")
-        else: st.error("Incorreto.")
+        st.success("Correto!") if q == "Obrigado" else st.error("Tente novamente.")
