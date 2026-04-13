@@ -45,8 +45,9 @@ def show_logo():
         </div>
     """, unsafe_allow_html=True)
 
-# ----- 3. Audio Logic (pt-BR Voice) -----
+# ----- 3. Audio Logic (MUST BE DEFINED HERE) -----
 async def save_speech(text, file_path):
+    # Using Antonio for Brazilian Portuguese
     communicate = edge_tts.Communicate(text, "pt-BR-AntonioNeural")
     await communicate.save(file_path)
 
@@ -67,7 +68,12 @@ def reproduzir_audio(texto, key):
                     os.unlink(tmp.name)
 
 # ----- 4. Content Generators -----
-temas = ["Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "Perguntar direções", "Falar da família", "No consultório médico", "Entrevista de emprego", "Planejar uma viagem", "Clima e estações", "Comprar roupas", "No banco", "Usar transporte público", "Alugar um apartamento", "Comemorar um aniversário", "Ir ao cinema", "Na academia", "Fazer uma ligação", "Escrever um e-mail", "Falar de hobbies"]
+temas = [
+    "Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "Perguntar direções",
+    "Falar da família", "No consultório médico", "Entrevista de emprego", "Planejar uma viagem", "Clima e estações",
+    "Comprar roupas", "No banco", "Usar transporte público", "Alugar um apartamento", "Comemorar um aniversário",
+    "Ir ao cinema", "Na academia", "Fazer uma ligação", "Escrever um e-mail", "Falar de hobbies"
+]
 
 def get_lesson_data(n):
     tema = temas[n-1]
@@ -79,10 +85,10 @@ def get_lesson_data(n):
         ],
         "vocabulario": ["Olá", "Obrigado", "Por favor", "Sim", "Não", "Bom dia", "Boa tarde", "Boa noite", "Tchau", "Até logo"],
         "gramatica": [
-            "1. 'Ser' é permanente, 'Estar' é temporário.",
-            "2. Gênero: a maioria das palavras em 'o' é masculina, em 'a' é feminina.",
-            "3. Use 'há' para existência (there is/are).",
-            "4. Plurais geralmente terminam em 's'."
+            "1. 'Ser' é para características permanentes.",
+            "2. 'Estar' é para estados temporários.",
+            "3. Use 'há' para dizer que algo existe (There is/are).",
+            "4. A maioria das palavras terminadas em 'o' são masculinas."
         ]
     }
 
@@ -106,7 +112,7 @@ if not st.session_state.authenticated:
                 st.error("Senha incorreta.")
     st.stop()
 
-# ----- 6. Main UI -----
+# ----- 6. Main UI Content -----
 set_colorful_style()
 st.markdown("""<div class="main-header"><h1>📘 Let's Learn Portuguese with Gesner</h1><p>Livro 1 – 20 lições interativas</p></div>""", unsafe_allow_html=True)
 
@@ -127,6 +133,7 @@ tabs = st.tabs(["💬 Conversas", "📚 Vocabulário", "📖 Gramática"])
 with tabs[0]:
     for i, conv in enumerate(data["conversas"]):
         st.text(conv)
+        # Calling the function defined above in Step 3
         reproducir_audio(conv, f"conv_{lesson_number}_{i}")
         st.markdown("---")
 
