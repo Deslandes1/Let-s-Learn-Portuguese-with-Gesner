@@ -19,7 +19,7 @@ st.set_page_config(page_title="Let's Learn Portuguese with Gesner", layout="wide
 def apply_custom_style():
     st.markdown("""
         <style>
-        /* Purple Gradient Background (Main and Sidebar Margins) */
+        /* Purple Gradient Background */
         .stApp, [data-testid="stSidebar"] { 
             background: linear-gradient(135deg, #1a0b2e, #2d1b4e, #1a0b2e) !important; 
         }
@@ -35,31 +35,15 @@ def apply_custom_style():
         .main-header h1 { color: white !important; text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
         .main-header p { color: #fff5cc; font-size: 1.2rem; margin: 0; }
         
-        /* SIDEBAR BRANDING LOCK (Force all Sidebar text to WHITE) */
-        [data-testid="stSidebar"] * { 
-            color: white !important; 
-        }
-        
-        /* Specific Fix for Selectbox labels inside sidebar */
-        [data-testid="stSidebar"] label p {
-            color: white !important;
-            font-weight: bold !important;
-        }
+        /* SIDEBAR BRANDING LOCK (White Text Only) */
+        [data-testid="stSidebar"] * { color: white !important; }
+        [data-testid="stSidebar"] label p { color: white !important; font-weight: bold !important; }
 
-        /* General UI Text for Main Page */
-        html, body, [data-testid="stHeader"], .stMarkdown, p, span, label, h2, h3 { 
-            color: white !important; 
-        }
+        /* General UI Text */
+        html, body, [data-testid="stHeader"], .stMarkdown, p, span, label, h2, h3 { color: white !important; }
         
         /* Buttons & Tabs */
-        .stButton button { 
-            background-color: #ff6b6b; 
-            color: white !important; 
-            border-radius: 30px; 
-            font-weight: bold; 
-            width: 100%; 
-            border: none; 
-        }
+        .stButton button { background-color: #ff6b6b; color: white !important; border-radius: 30px; font-weight: bold; width: 100%; border: none; }
         .stButton button:hover { background-color: #feca57; color: black !important; }
         .stTabs [role="tab"] { color: white !important; }
         </style>
@@ -101,15 +85,16 @@ temas = ["Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "
 
 def get_lesson_content(n):
     tema = temas[n-1]
+    # To ensure variety, we return content specific to the theme
     return {
         "conversas": [
-            f"A: Olá! Como você se chama?\nB: Oi! Meu nome é Gesner. E o seu?",
-            f"A: Prazer em conhecê-lo.\nB: O prazer é todo meu!",
-            f"A: De onde você é?\nB: Eu sou do Haiti."
+            f"A: Olá! Hoje vamos praticar {tema}.\nB: Sim! É um assunto muito importante.",
+            f"A: Você já conhece bem {tema}?\nB: Estou aprendendo agora com o mestre Gesner.",
+            f"A: Excelente progresso!\nB: Obrigado, o português é fantástico."
         ],
         "vocabulario": ["Olá", "Oi", "Bom dia", "Boa tarde", "Boa noite", "Obrigado", "Sim", "Não", "Nome", "Prazer", "Tchau", "Até logo", "Amigo", "Escola", "Casa", "Água", "Livro", "Família", "Bem", "Mal"],
-        "gramatica": [f"1. Verbo 'Ser' em {tema}.", "2. Pronomes pessoais.", "3. Gênero das palavras.", "4. Artigos.", "5. Plural.", "6. Interrogações.", "7. Negações.", "8. Saudação formal.", "9. Verbos terminados em -ar.", "10. Uso de 'você'."],
-        "pronuncia": ["Como vai você hoje?", "Qual é o seu nome?", "Eu sou professor.", "Muito prazer em conhecê-lo.", "Até amanhã."]
+        "gramatica": [f"1. Como usar verbos em {tema}.", "2. Pronomes pessoais.", "3. Gênero das palavras.", "4. Artigos.", "5. Plural.", "6. Interrogações.", "7. Negações.", "8. Saudação formal.", "9. Verbos terminados em -ar.", "10. Uso de 'você'."],
+        "pronuncia": [f"Eu quero aprender mais sobre {tema}.", "Qual é o seu nome?", "Eu sou professor de tecnologia.", "Muito prazer em conhecê-lo.", "Até amanhã."]
     }
 
 # ----- 4. Authentication (Login Page) -----
@@ -137,7 +122,8 @@ apply_custom_style()
 with st.sidebar:
     show_logo()
     st.markdown("### 🎯 Menu de Lições")
-    lesson_number = st.selectbox("Selecione a lição", list(range(1, 21)), index=0)
+    # Added 'key' to ensure the state updates on every change
+    lesson_number = st.selectbox("Selecione a lição", list(range(1, 21)), index=0, key="lesson_selector")
     st.progress(lesson_number / 20)
     st.markdown("---")
     st.markdown("### 👨‍🏫 Informações do Desenvolvedor")
@@ -146,13 +132,15 @@ with st.sidebar:
     st.markdown("📧 **Email:** deslandes78@gmail.com")
     st.markdown("🌐 **GlobalInternet.py**")
     st.markdown("---")
-    st.markdown("### 💰 Preço: $299 USD")
+    st.markdown(f"### 💰 Preço: $299 USD")
     st.markdown("---")
     if st.button("🚪 Sair", use_container_width=True):
         st.session_state.authenticated = False
         st.rerun()
 
-st.markdown('<div class="main-header"><h1>📘 Let\'s Learn Portuguese with Gesner</h1><p>Curso Interativo Completo</p></div>', unsafe_allow_html=True)
+# This part now reacts to 'lesson_number' automatically
+st.markdown(f'<div class="main-header"><h1>📘 Let\'s Learn Portuguese with Gesner</h1><p>Lição {lesson_number}: {temas[lesson_number-1]}</p></div>', unsafe_allow_html=True)
+
 content = get_lesson_content(lesson_number)
 
 tabs = st.tabs(["💬 Conversas", "📚 Vocabulário", "📖 Gramática", "🎧 Pronúncia", "❓ Quiz"])
@@ -160,7 +148,7 @@ tabs = st.tabs(["💬 Conversas", "📚 Vocabulário", "📖 Gramática", "🎧 
 with tabs[0]:
     for i, c in enumerate(content["conversas"]):
         st.text(c)
-        reproducir_audio(c, f"c_{i}")
+        reproducir_audio(c, f"c_{lesson_number}_{i}")
         st.markdown("---")
 
 with tabs[1]:
@@ -168,7 +156,7 @@ with tabs[1]:
     for idx, v in enumerate(content["vocabulario"]):
         with cols[idx % 4]:
             st.markdown(f"**{v}**")
-            reproducir_audio(v, f"v_{idx}")
+            reproducir_audio(v, f"v_{lesson_number}_{idx}")
 
 with tabs[2]:
     for g in content["gramatica"]:
@@ -178,11 +166,14 @@ with tabs[3]:
     st.markdown("### Pratique sua pronúncia")
     for idx, p in enumerate(content["pronuncia"]):
         st.write(f"{idx+1}. {p}")
-        reproducir_audio(p, f"p_{idx}")
+        reproducir_audio(p, f"p_{lesson_number}_{idx}")
         st.markdown("---")
 
 with tabs[4]:
     st.markdown("### Teste seu conhecimento")
-    q = st.radio("Selecione a tradução de 'Prazer em conhecê-lo':", ["Mucho gusto", "Hola", "Adiós"])
+    q = st.radio(f"Sobre o que é a lição {lesson_number}?", [temas[lesson_number-1], "Culinária", "Espaço"], key=f"quiz_{lesson_number}")
     if st.button("Verificar"):
-        st.success("Correto!") if q == "Mucho gusto" else st.error("Tente novamente.")
+        if q == temas[lesson_number-1]:
+            st.success("Correto!")
+        else:
+            st.error("Tente novamente.")
