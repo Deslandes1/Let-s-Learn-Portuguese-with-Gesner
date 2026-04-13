@@ -19,32 +19,48 @@ st.set_page_config(page_title="Let's Learn Portuguese with Gesner", layout="wide
 def apply_custom_style():
     st.markdown("""
         <style>
-        /* Purple Gradient Background */
-        .stApp { background: linear-gradient(135deg, #1a0b2e, #2d1b4e, #1a0b2e); }
+        /* Purple Gradient Background (Main and Sidebar Margins) */
+        .stApp, [data-testid="stSidebar"] { 
+            background: linear-gradient(135deg, #1a0b2e, #2d1b4e, #1a0b2e) !important; 
+        }
         
         /* Header Styling */
-        .main-header { background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb); padding: 1.5rem; border-radius: 20px; text-align: center; margin-bottom: 1rem; }
-        .main-header h1 { color: white !                 text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
+        .main-header { 
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb); 
+            padding: 1.5rem; 
+            border-radius: 20px; 
+            text-align: center; 
+            margin-bottom: 1rem; 
+        }
+        .main-header h1 { color: white !important; text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
         .main-header p { color: #fff5cc; font-size: 1.2rem; margin: 0; }
         
-        /* SIDEBAR BRANDING LOCK (White Text Only) */
-        [data-testid="stSidebar"] .stMarkdown p, 
-        [data-testid="stSidebar"] h1, 
-        [data-testid="stSidebar"] h2, 
-        [data-testid="stSidebar"] h3, 
-        [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] .stSelectbox p,
-        [data-testid="stSidebar"] .stMarkdown span { 
+        /* SIDEBAR BRANDING LOCK (Force all Sidebar text to WHITE) */
+        [data-testid="stSidebar"] * { 
             color: white !important; 
-            font-weight: 500;
+        }
+        
+        /* Specific Fix for Selectbox labels inside sidebar */
+        [data-testid="stSidebar"] label p {
+            color: white !important;
+            font-weight: bold !important;
         }
 
-        /* General UI Text */
-        html, body, [data-testid="stHeader"], .stMarkdown, p, span, label, h2, h3 { color: white !important; }
+        /* General UI Text for Main Page */
+        html, body, [data-testid="stHeader"], .stMarkdown, p, span, label, h2, h3 { 
+            color: white !important; 
+        }
         
         /* Buttons & Tabs */
-        .stButton button { background-color: #ff6b6b; color: white; border-radius: 30px; font-weight: bold; width: 100%; border: none; }
-        .stButton button:hover { background-color: #feca57; color: black; }
+        .stButton button { 
+            background-color: #ff6b6b; 
+            color: white !important; 
+            border-radius: 30px; 
+            font-weight: bold; 
+            width: 100%; 
+            border: none; 
+        }
+        .stButton button:hover { background-color: #feca57; color: black !important; }
         .stTabs [role="tab"] { color: white !important; }
         </style>
     """, unsafe_allow_html=True)
@@ -64,7 +80,6 @@ def show_logo():
 
 # ----- 3. Audio & Data Functions -----
 async def save_speech(text, file_path):
-    # es-ES-AlvaroNeural as requested
     communicate = edge_tts.Communicate(text, "es-ES-AlvaroNeural")
     await communicate.save(file_path)
 
@@ -168,6 +183,6 @@ with tabs[3]:
 
 with tabs[4]:
     st.markdown("### Teste seu conhecimento")
-    q = st.radio("Selecione a saudação correta:", ["Obrigado", "Olá", "Tchau"])
+    q = st.radio("Selecione a tradução de 'Prazer em conhecê-lo':", ["Mucho gusto", "Hola", "Adiós"])
     if st.button("Verificar"):
-        st.success("Correto!") if q == "Obrigado" else st.error("Tente novamente.")
+        st.success("Correto!") if q == "Mucho gusto" else st.error("Tente novamente.")
