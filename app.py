@@ -15,7 +15,7 @@ except (ModuleNotFoundError, ImportError):
 
 st.set_page_config(page_title="Let's Learn Portuguese with Gesner", layout="wide")
 
-# ----- 2. Styling (Purple Margins & White Sidebar Text) -----
+# ----- 2. Styling (Purple Margins & Force White Sidebar Text) -----
 def apply_custom_style():
     st.markdown("""
         <style>
@@ -24,10 +24,10 @@ def apply_custom_style():
         
         /* Header Styling */
         .main-header { background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb); padding: 1.5rem; border-radius: 20px; text-align: center; margin-bottom: 1rem; }
-        .main-header h1 { color: white; text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
+        .main-header h1 { color: white !                 text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
         .main-header p { color: #fff5cc; font-size: 1.2rem; margin: 0; }
         
-        /* STICKY SIDEBAR BRANDING (White Text) */
+        /* SIDEBAR BRANDING LOCK (White Text Only) */
         [data-testid="stSidebar"] .stMarkdown p, 
         [data-testid="stSidebar"] h1, 
         [data-testid="stSidebar"] h2, 
@@ -64,6 +64,7 @@ def show_logo():
 
 # ----- 3. Audio & Data Functions -----
 async def save_speech(text, file_path):
+    # es-ES-AlvaroNeural as requested
     communicate = edge_tts.Communicate(text, "es-ES-AlvaroNeural")
     await communicate.save(file_path)
 
@@ -167,6 +168,6 @@ with tabs[3]:
 
 with tabs[4]:
     st.markdown("### Teste seu conhecimento")
-    q = st.radio("Como se diz 'Obrigado' em espanhol (voz selecionada)?", ["Gracias", "Hola", "Adiós"])
+    q = st.radio("Selecione a saudação correta:", ["Obrigado", "Olá", "Tchau"])
     if st.button("Verificar"):
-        st.success("Correto!") if q == "Gracias" else st.error("Tente novamente.")
+        st.success("Correto!") if q == "Obrigado" else st.error("Tente novamente.")
