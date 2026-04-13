@@ -3,7 +3,6 @@ import asyncio
 import tempfile
 import base64
 import os
-import random
 
 # ----- 1. Audio Engine & Safety -----
 try:
@@ -20,7 +19,7 @@ st.set_page_config(page_title="Let's Learn Portuguese with Gesner", layout="wide
 def apply_custom_style():
     st.markdown("""
         <style>
-        /* Purple Gradient Margins/Background */
+        /* Purple Gradient Background */
         .stApp { background: linear-gradient(135deg, #1a0b2e, #2d1b4e, #1a0b2e); }
         
         /* Header Styling */
@@ -28,8 +27,10 @@ def apply_custom_style():
         .main-header h1 { color: white; text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
         .main-header p { color: #fff5cc; font-size: 1.2rem; margin: 0; }
         
-        /* Sidebar Text Colors - Explicitly White for your branding */
+        /* STICKY SIDEBAR BRANDING (White Text) */
         [data-testid="stSidebar"] .stMarkdown p, 
+        [data-testid="stSidebar"] h1, 
+        [data-testid="stSidebar"] h2, 
         [data-testid="stSidebar"] h3, 
         [data-testid="stSidebar"] label,
         [data-testid="stSidebar"] .stSelectbox p,
@@ -63,7 +64,6 @@ def show_logo():
 
 # ----- 3. Audio & Data Functions -----
 async def save_speech(text, file_path):
-    # Using Spanish AI voice per request
     communicate = edge_tts.Communicate(text, "es-ES-AlvaroNeural")
     await communicate.save(file_path)
 
@@ -81,12 +81,7 @@ def reproducir_audio(texto, key):
             finally:
                 if os.path.exists(tmp.name): os.unlink(tmp.name)
 
-temas = [
-    "Apresentar-se", "Rutina diária", "No supermercado", "Pedir comida", "Perguntar direções",
-    "Falar da família", "No consultório médico", "Entrevista de emprego", "Planejar uma viagem", "Clima e estações",
-    "Comprar roupas", "No banco", "Usar transporte público", "Alugar um apartamento", "Comemorar um aniversário",
-    "Ir ao cinema", "Na academia", "Fazer uma ligação", "Escrever um e-mail", "Falar de hobbies"
-]
+temas = ["Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "Perguntar direções", "Falar da família", "No consultório médico", "Entrevista de emprego", "Planejar uma viagem", "Clima e estações", "Comprar roupas", "No banco", "Usar transporte público", "Alugar um apartamento", "Comemorar um aniversário", "Ir ao cinema", "Na academia", "Fazer uma ligação", "Escrever um e-mail", "Falar de hobbies"]
 
 def get_lesson_content(n):
     tema = temas[n-1]
@@ -136,6 +131,7 @@ with st.sidebar:
     st.markdown("🌐 **GlobalInternet.py**")
     st.markdown("---")
     st.markdown("### 💰 Preço: $299 USD")
+    st.markdown("---")
     if st.button("🚪 Sair", use_container_width=True):
         st.session_state.authenticated = False
         st.rerun()
@@ -171,6 +167,6 @@ with tabs[3]:
 
 with tabs[4]:
     st.markdown("### Teste seu conhecimento")
-    q = st.radio("Qual é a resposta correta?", ["Obrigado", "Olá", "Tchau"])
+    q = st.radio("Como se diz 'Obrigado' em espanhol (voz selecionada)?", ["Gracias", "Hola", "Adiós"])
     if st.button("Verificar"):
-        st.success("Correto!") if q == "Obrigado" else st.error("Tente novamente.")
+        st.success("Correto!") if q == "Gracias" else st.error("Tente novamente.")
