@@ -64,7 +64,8 @@ def show_logo():
 
 # ----- 3. Audio & Data Functions -----
 async def save_speech(text, file_path):
-    communicate = edge_tts.Communicate(text, "es-ES-AlvaroNeural")
+    # UPDATED: Changed from Spanish (es-ES) to Portuguese (pt-PT)
+    communicate = edge_tts.Communicate(text, "pt-PT-RaquelNeural")
     await communicate.save(file_path)
 
 def reproducir_audio(texto, key):
@@ -85,7 +86,6 @@ temas = ["Apresentar-se", "Rotina diária", "No supermercado", "Pedir comida", "
 
 def get_lesson_content(n):
     tema = temas[n-1]
-    # To ensure variety, we return content specific to the theme
     return {
         "conversas": [
             f"A: Olá! Hoje vamos praticar {tema}.\nB: Sim! É um assunto muito importante.",
@@ -122,7 +122,6 @@ apply_custom_style()
 with st.sidebar:
     show_logo()
     st.markdown("### 🎯 Menu de Lições")
-    # Added 'key' to ensure the state updates on every change
     lesson_number = st.selectbox("Selecione a lição", list(range(1, 21)), index=0, key="lesson_selector")
     st.progress(lesson_number / 20)
     st.markdown("---")
@@ -138,7 +137,6 @@ with st.sidebar:
         st.session_state.authenticated = False
         st.rerun()
 
-# This part now reacts to 'lesson_number' automatically
 st.markdown(f'<div class="main-header"><h1>📘 Let\'s Learn Portuguese with Gesner</h1><p>Lição {lesson_number}: {temas[lesson_number-1]}</p></div>', unsafe_allow_html=True)
 
 content = get_lesson_content(lesson_number)
