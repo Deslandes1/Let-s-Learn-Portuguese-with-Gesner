@@ -19,12 +19,9 @@ st.set_page_config(page_title="Let's Learn Portuguese with Gesner", layout="wide
 def apply_custom_style():
     st.markdown("""
         <style>
-        /* Purple Gradient Background */
         .stApp, [data-testid="stSidebar"] { 
             background: linear-gradient(135deg, #1a0b2e, #2d1b4e, #1a0b2e) !important; 
         }
-        
-        /* Header Styling */
         .main-header { 
             background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb); 
             padding: 1.5rem; 
@@ -34,15 +31,9 @@ def apply_custom_style():
         }
         .main-header h1 { color: white !important; text-shadow: 2px 2px 4px #000000; font-size: 2.5rem; margin: 0; }
         .main-header p { color: #fff5cc; font-size: 1.2rem; margin: 0; }
-        
-        /* SIDEBAR BRANDING LOCK (White Text Only) */
         [data-testid="stSidebar"] * { color: white !important; }
         [data-testid="stSidebar"] label p { color: white !important; font-weight: bold !important; }
-
-        /* General UI Text */
         html, body, [data-testid="stHeader"], .stMarkdown, p, span, label, h2, h3 { color: white !important; }
-        
-        /* Buttons & Tabs */
         .stButton button { background-color: #ff6b6b; color: white !important; border-radius: 30px; font-weight: bold; width: 100%; border: none; }
         .stButton button:hover { background-color: #feca57; color: black !important; }
         .stTabs [role="tab"] { color: white !important; }
@@ -64,7 +55,7 @@ def show_logo():
 
 # ----- 3. Audio & Data Functions -----
 async def save_speech(text, file_path):
-    # UPDATED: Changed from Spanish (es-ES) to Portuguese (pt-PT)
+    # Using Portuguese (Portugal) for a neutral European sound, or change to pt-BR-FranciscaNeural for Brazil
     communicate = edge_tts.Communicate(text, "pt-PT-RaquelNeural")
     await communicate.save(file_path)
 
@@ -72,7 +63,7 @@ def reproducir_audio(texto, key):
     if not EDGE_TTS_AVAILABLE:
         st.info("🔇 Áudio desabilitado.")
         return
-    if st.button(f"🔊 Ouvir", key=key):
+    if st.button(f"🔊", key=key):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
             try:
                 asyncio.run(save_speech(texto, tmp.name))
@@ -97,7 +88,7 @@ def get_lesson_content(n):
         "pronuncia": [f"Eu quero aprender mais sobre {tema}.", "Qual é o seu nome?", "Eu sou professor de tecnologia.", "Muito prazer em conhecê-lo.", "Até amanhã."]
     }
 
-# ----- 4. Authentication (Login Page) -----
+# ----- 4. Authentication -----
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
@@ -125,13 +116,10 @@ with st.sidebar:
     lesson_number = st.selectbox("Selecione a lição", list(range(1, 21)), index=0, key="lesson_selector")
     st.progress(lesson_number / 20)
     st.markdown("---")
-    st.markdown("### 👨‍🏫 Informações do Desenvolvedor")
-    st.markdown("**Nome:** Gesner Deslandes")
-    st.markdown("📞 **WhatsApp:** (509) 4738-5663")
-    st.markdown("📧 **Email:** deslandes78@gmail.com")
+    st.markdown("### 👨‍🏫 Desenvolvedor")
+    st.markdown("**Gesner Deslandes**")
+    st.markdown("📞 (509) 4738-5663")
     st.markdown("🌐 **GlobalInternet.py**")
-    st.markdown("---")
-    st.markdown(f"### 💰 Preço: $299 USD")
     st.markdown("---")
     if st.button("🚪 Sair", use_container_width=True):
         st.session_state.authenticated = False
@@ -140,11 +128,11 @@ with st.sidebar:
 st.markdown(f'<div class="main-header"><h1>📘 Let\'s Learn Portuguese with Gesner</h1><p>Lição {lesson_number}: {temas[lesson_number-1]}</p></div>', unsafe_allow_html=True)
 
 content = get_lesson_content(lesson_number)
-
 tabs = st.tabs(["💬 Conversas", "📚 Vocabulário", "📖 Gramática", "🎧 Pronúncia", "❓ Quiz"])
 
 with tabs[0]:
     for i, c in enumerate(content["conversas"]):
+        st.markdown(f"**Conversa {i+1}**")
         st.text(c)
         reproducir_audio(c, f"c_{lesson_number}_{i}")
         st.markdown("---")
@@ -157,8 +145,51 @@ with tabs[1]:
             reproducir_audio(v, f"v_{lesson_number}_{idx}")
 
 with tabs[2]:
+    st.subheader("💡 Regras Gramaticais")
     for g in content["gramatica"]:
         st.markdown(f"- {g}")
+    
+    st.markdown("---")
+    
+    # NEW SECTION: O BÁSICO
+    st.subheader("🌟 O Básico (Os Fundamentos)")
+    
+    with st.expander("🔤 O Alfabeto Português"):
+        alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZÇ"
+        cols = st.columns(7)
+        for i, letra in enumerate(alfabeto):
+            with cols[i % 7]:
+                st.write(f"### {letra}")
+                reproducir_audio(letra, f"alpha_{letra}_{lesson_number}")
+
+    with st.expander("🔢 Números (Cardinais e Ordinais)"):
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown("**Cardinais**")
+            nums = ["Um", "Dois", "Três", "Dez", "Vinte", "Cem"]
+            for n in nums:
+                col_t, col_a = st.columns([3, 1])
+                col_t.write(n)
+                with col_a: reproducir_audio(n, f"card_{n}_{lesson_number}")
+        with c2:
+            st.markdown("**Ordinais**")
+            ords = ["Primeiro", "Segundo", "Terceiro", "Décimo"]
+            for o in ords:
+                col_t, col_a = st.columns([3, 1])
+                col_t.write(o)
+                with col_a: reproducir_audio(o, f"ord_{o}_{lesson_number}")
+
+    with st.expander("🗣️ Expressões Idiomáticas"):
+        expressoes = [
+            {"p": "Dar o nó", "m": "Casar-se."},
+            {"p": "Estar com a pulga atrás da orelha", "m": "Estar desconfiado."},
+            {"p": "Pão-duro", "m": "Pessoa que não gosta de gastar dinheiro."}
+        ]
+        for idx, item in enumerate(expressoes):
+            st.markdown(f"**{item['p']}**")
+            st.caption(f"Significado: {item['m']}")
+            reproducir_audio(f"{item['p']}. Significa {item['m']}", f"idm_{idx}_{lesson_number}")
+            st.markdown("---")
 
 with tabs[3]:
     st.markdown("### Pratique sua pronúncia")
@@ -172,6 +203,7 @@ with tabs[4]:
     q = st.radio(f"Sobre o que é a lição {lesson_number}?", [temas[lesson_number-1], "Culinária", "Espaço"], key=f"quiz_{lesson_number}")
     if st.button("Verificar"):
         if q == temas[lesson_number-1]:
-            st.success("Correto!")
+            st.success("Correto! Parabéns!")
+            st.balloons()
         else:
             st.error("Tente novamente.")
